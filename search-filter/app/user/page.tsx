@@ -5,8 +5,16 @@ import fetchUsers from "@/hook/getuser";
 
 interface User {
     _id: string;
+    id: number;
     name: string;
     email: string;
+    age: number;
+    city: string;
+    country: string;
+    phone: string;
+    occupation: string;
+    company: string;
+    active: boolean;
 }
 
 const Page = () => {
@@ -14,7 +22,17 @@ const Page = () => {
     const router = useRouter();
     const [data, setData] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
-    const [filterInputs, setFilterInputs] = useState({ name: "", email: "" });
+    const [filterInputs, setFilterInputs] = useState({
+        name: "",
+        email: "",
+        age: "",
+        city: "",
+        country: "",
+        phone: "",
+        occupation: "",
+        company: "",
+        active: ""
+    });
 
     useEffect(() => {
         const fetchData = async () => {
@@ -33,14 +51,19 @@ const Page = () => {
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setFilterInputs({ ...filterInputs, [name]: value });
+        setFilterInputs((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSearch = () => {
         const params = new URLSearchParams();
-        if (filterInputs.name) params.set("name", filterInputs.name);
-        if (filterInputs.email) params.set("email", filterInputs.email);
+        Object.entries(filterInputs).forEach(([key, value]) => {
+            if (value) params.set(key, value);
+        });
         router.push(`?${params.toString()}`);
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") handleSearch();
     };
 
     if (loading) {
@@ -48,28 +71,51 @@ const Page = () => {
     }
 
     return (
-        <>
-            <h1>This is Test Page</h1>
-            <div>
-                <label>
-                    Name: <input type="text" className="bg-black border border-white" name="name" value={filterInputs.name} onChange={handleInputChange} />
-                </label>
-                <label>
-                    Email: <input type="text" className="bg-black border border-white" name="email" value={filterInputs.email} onChange={handleInputChange} />
-                </label>
-                <button onClick={handleSearch}>Search</button>
-            </div>
-            {data.length > 0 ? (
-                data.map((item) => (
-                    <div key={item._id}>
-                        <h2>{item.name}</h2>
-                        <p>{item.email}</p>
+        <div className="p-5 max-w-4xl mx-auto">
+            <h1 className="text-3xl font-bold mb-6 text-center text-blue-600">User Search</h1>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                {Object.keys(filterInputs).map((key) => (
+                    <div key={key} className="flex flex-col">
+                        <label className="mb-2 font-semibold text-white">
+                            {key.charAt(0).toUpperCase() + key.slice(1)}
+                        </label>
+                        <input
+                            type="text"
+                            style={{ color: "black" }}
+                            placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
+                            className="p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            name={key}
+                            value={filterInputs[key as keyof typeof filterInputs]}
+                            onChange={handleInputChange}
+                            onKeyPress={handleKeyPress}
+                        />
                     </div>
-                ))
-            ) : (
-                <p>No users found.</p>
-            )}
-        </>
+                ))}
+            </div>
+            <div className="text-center">
+                <button
+                    onClick={handleSearch}
+                    className="bg-blue-500 text-white px-6 py-3 rounded-full hover:bg-blue-600 transition duration-300"
+                >
+                    Search
+                </button>
+            </div>
+
+            <div className="mt-8">
+                {data.length > 0 ? (
+                    data.map((item) => (
+                        <div key={item._id} className="p-6 border rounded-lg mb-4 shadow-md hover:shadow-lg transition duration-300">
+                            <h2 className="text-xl font-semibold ">{item.name}</h2>
+                            <p className="">{item.email} | {item.phone}</p>
+                            <p className="">{item.city}, {item.country} - {item.occupation} at {item.company}</p>
+                            <p className="">Status: <span className={item.active ? "text-green-500" : "text-red-500"}>{item.active.toString()}</span></p>
+                        </div>
+                    ))
+                ) : (
+                    <p className="text-center text-gray-500">No users found.</p>
+                )}
+            </div>
+        </div>
     );
 };
 

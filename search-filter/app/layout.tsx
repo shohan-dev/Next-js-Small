@@ -26,6 +26,7 @@ export default function RootLayout({
   // connectToMongoDB();
   return (
     <html lang="en">
+      <title>Search & Filter</title>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
