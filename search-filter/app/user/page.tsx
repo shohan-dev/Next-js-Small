@@ -46,7 +46,7 @@ const Page = () => {
         fetchData();
     }, [searchParams]);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFilterInputs((prev) => ({ ...prev, [name]: value }));
     };
@@ -67,6 +67,7 @@ const Page = () => {
 
     return (
         <div className="p-5 max-w-4xl mx-auto">
+
             <h1 className="text-3xl font-bold mb-6 text-center text-blue-600">User Search</h1>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 {Object.keys(filterInputs).map((key) => (
@@ -74,16 +75,29 @@ const Page = () => {
                         <label className="mb-2 font-semibold text-white">
                             {key.charAt(0).toUpperCase() + key.slice(1)}
                         </label>
-                        <input
-                            type="text"
-                            style={{ color: "black" }}
-                            placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
-                            className="p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            name={key}
-                            value={filterInputs[key as keyof typeof filterInputs]}
-                            onChange={handleInputChange}
-                            onKeyPress={handleKeyPress}
-                        />
+                        {key === "active" ? (
+                            <select
+                                name={key}
+                                value={filterInputs[key as keyof typeof filterInputs]}
+                                onChange={handleInputChange}
+                                className="p-3 border border-gray-300 text-black rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="">Select</option>
+                                <option value="true">True</option>
+                                <option value="false">False</option>
+                            </select>
+                        ) : (
+                            <input
+                                type="text"
+                                style={{ color: "black" }}
+                                placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
+                                className="p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                name={key}
+                                value={filterInputs[key as keyof typeof filterInputs]}
+                                onChange={handleInputChange}
+                                onKeyPress={handleKeyPress}
+                            />
+                        )}
                     </div>
                 ))}
             </div>
@@ -93,6 +107,26 @@ const Page = () => {
                     className="bg-blue-500 text-white px-6 py-3 rounded-full hover:bg-blue-600 transition duration-300"
                 >
                     Search
+                </button>
+            </div>
+            {/* paginaition */}
+            <div className="flex justify-end mt-8">
+                <button
+                    onClick={() => router.push(`?page=${Math.max(1, parseInt(searchParams.get("page") || "1") - 1)}`)}
+                    className="bg-gray-300 text-gray-700 px-4 py-2 rounded-l-full hover:bg-gray-400 transition duration-300"
+                    disabled={parseInt(searchParams.get("page") || "1") <= 1}
+                >
+                    Previous
+                </button>
+                <span className="px-4 py-2 bg-white text-black border-t border-b">
+                    Page {searchParams.get("page") || 1} of {Math.ceil(100 / 20)}
+                </span>
+                <button
+                    onClick={() => router.push(`?page=${parseInt(searchParams.get("page") || "1") + 1}`)}
+                    className="bg-gray-300 text-gray-700 px-4 py-2 rounded-r-full hover:bg-gray-400 transition duration-300"
+                    disabled={parseInt(searchParams.get("page") || "1") >= Math.ceil(100 / 20)}
+                >
+                    Next
                 </button>
             </div>
 
@@ -110,6 +144,7 @@ const Page = () => {
                     <p className="text-center text-gray-500">No users found.</p>
                 )}
             </div>
+
         </div>
     );
 };

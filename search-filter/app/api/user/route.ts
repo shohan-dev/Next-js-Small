@@ -57,7 +57,9 @@ export async function GET(request: Request) {
         if (searchParams.has('phone')) {
             const phone = searchParams.get('phone');
             // Use $regex for partial matching (case-insensitive)
-            query.phone = { $regex: phone, $options: 'i' };
+            if (phone !== null) {
+                query.phone = { $regex: phone.replace(/\\/g, '\\\\'), $options: 'i' };
+            }
         }
 
         if (searchParams.has('occupation')) {
@@ -86,7 +88,25 @@ export async function GET(request: Request) {
         console.log("this is query ............................................................. ", query)
 
         // Fetch users based on the constructed query
-        const users = await usersCollection.find(query).limit(20).toArray();
+        // const users = await usersCollection.find(query).limit(20).toArray();
+        const page = parseInt(searchParams.get('page') || '1', 10);
+        if (isNaN(page) || page < 1) {
+            return NextResponse.json({ message: 'Invalid page value' }, { status: 400 });
+        }
+
+        // const totalUsers = await usersCollection.countDocuments(query);
+        // const totalPages = Math.ceil(totalUsers / 20);
+        const users = await usersCollection.find(query)
+            .skip((page - 1) * 20)
+            .limit(20)
+            .toArray();
+
+        // const response = {
+        //     users,
+        //     totalUsers,
+        //     totalPages,
+        //     currentPage: page,
+        // };
 
 
         // Return the users as JSON response
