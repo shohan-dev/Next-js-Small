@@ -55,7 +55,9 @@ export async function GET(request: Request) {
         }
 
         if (searchParams.has('phone')) {
-            query.phone = searchParams.get('phone');
+            const phone = searchParams.get('phone');
+            // Use $regex for partial matching (case-insensitive)
+            query.phone = { $regex: phone, $options: 'i' };
         }
 
         if (searchParams.has('occupation')) {

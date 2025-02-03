@@ -21,29 +21,26 @@ const Page = () => {
     const searchParams = useSearchParams();
     const router = useRouter();
     const [data, setData] = useState<User[]>([]);
-    const [loading, setLoading] = useState(true);
     const [filterInputs, setFilterInputs] = useState({
-        name: "",
-        email: "",
-        age: "",
-        city: "",
-        country: "",
-        phone: "",
-        occupation: "",
-        company: "",
-        active: ""
+        name: searchParams.get("name") || "",
+        email: searchParams.get("email") || "",
+        age: searchParams.get("age") || "",
+        city: searchParams.get("city") || "",
+        country: searchParams.get("country") || "",
+        phone: searchParams.get("phone") || "",
+        occupation: searchParams.get("occupation") || "",
+        company: searchParams.get("company") || "",
+        active: searchParams.get("active") || ""
     });
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                setLoading(true);
+
                 const users = await fetchUsers(searchParams);
                 setData(users);
             } catch (error) {
                 console.error("Failed to fetch users:", error);
-            } finally {
-                setLoading(false);
             }
         };
         fetchData();
@@ -66,9 +63,7 @@ const Page = () => {
         if (e.key === "Enter") handleSearch();
     };
 
-    if (loading) {
-        return <p>Loading...</p>;
-    }
+
 
     return (
         <div className="p-5 max-w-4xl mx-auto">
@@ -106,7 +101,7 @@ const Page = () => {
                     data.map((item) => (
                         <div key={item._id} className="p-6 border rounded-lg mb-4 shadow-md hover:shadow-lg transition duration-300">
                             <h2 className="text-xl font-semibold ">{item.name}</h2>
-                            <p className="">{item.email} | {item.phone}</p>
+                            <p className="">{item.email} | {item.age} | {item.phone}</p>
                             <p className="">{item.city}, {item.country} - {item.occupation} at {item.company}</p>
                             <p className="">Status: <span className={item.active ? "text-green-500" : "text-red-500"}>{item.active.toString()}</span></p>
                         </div>
